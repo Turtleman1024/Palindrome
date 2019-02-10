@@ -1,0 +1,265 @@
+GAS LISTING palindrome.s 			page 1
+
+
+   1              	# Author: Kenneth M Murry
+   2              	# CptS 260 HW6
+   3              	# Palindrome Program
+   4              	
+   5              	    .option pic0
+   6              	    
+   7              	    .data
+   8              	    .align 2
+   9              	
+  10              	    fileName: 
+  11 0000 2F757372 	        .asciiz "/usr/share/dict/words" # this is the path to get all the words to check 
+  11      2F736861 
+  11      72652F64 
+  11      6963742F 
+  11      776F7264 
+  12              	    
+  13              	    buffer: 
+  14 0016 00000000 	        .space 64 # this is going to be used to hold the strings
+  14      00000000 
+  14      00000000 
+  14      00000000 
+  14      00000000 
+  15              	    
+  16              	    fileMode: 
+  17 0056 7200     	        .asciiz "r"
+  18              	
+  19              	    messageFormat:
+  20 0058 257300   	        .asciz  "%s"
+  21              	    
+  22              	    promptMessage:
+  23 005b 4D757272 	        .asciz "Murry's Palindrome MIPS Program\n"
+  23      79277320 
+  23      50616C69 
+  23      6E64726F 
+  23      6D65204D 
+  24              	        .align 2
+  25              	
+  26              	    fileError:
+  27 007c 46696C65 	        .asciz "File Did Not Open!\n"
+  27      20446964 
+  27      204E6F74 
+  27      204F7065 
+  27      6E210A00 
+  28              	        .align 2
+  29              	
+  30              	        .text
+  31              	        .align 2
+  32              	
+  33              	    #This function will display my custom starting logo
+  34              	    .global palindrome_prompt
+  35              	palindrome_prompt:
+  36 0000 3C040000 	    la $a0, promptMessage # storing address of promptMessage in $a0
+  36      2484005B 
+  37              	
+  38 0008 27BDFFFC 	    addiu $sp, $sp, -4 # create space on the stack for $sp
+  39 000c AFBF0000 	    sw $ra, ($sp)      # save $sp on the stack
+  40              	
+GAS LISTING palindrome.s 			page 2
+
+
+  41 0010 00802821 	    move $a1, $a0
+  42 0014 3C040000 	    la $a0, messageFormat
+  43 0018 0C000000 	    jal printf
+  43      24840058 
+  44              	
+  45 0020 8FBF0000 	    lw $ra, ($sp)
+  46 0024 27BD0004 	    addiu $sp, $sp, +4
+  47              	
+  48 0028 03E00008 	    jr $ra
+  48      00000000 
+  49              	
+  50              	    #This function will be used to prompt the user that file
+  51              	    #did not open
+  52              	    .global palindrome_error
+  53              	palindrome_error:
+  54 0030 3C040000 	    la $a0, fileError # storing address of test in $a0
+  54      2484007C 
+  55              	
+  56 0038 27BDFFFC 	    addiu $sp, $sp, -4 # create space on the stack for $sp
+  57 003c AFBF0000 	    sw $ra, ($sp)      # save $sp on the stack
+  58              	
+  59 0040 00802821 	    move $a1, $a0
+  60 0044 3C040000 	    la $a0, messageFormat
+  61 0048 0C000000 	    jal printf
+  61      24840058 
+  62              	
+  63 0050 8FBF0000 	    lw $ra, ($sp)
+  64              	    addiu $sp, $sp, +4
+  65              	
+  66 0054 0C000000 	    jal error_exit 
+  66      27BD0004 
+  67              	    
+  68              	    #This function will be used to exit program if file could
+  69              	    #Not be openned
+  70              	    .global error_exit
+  71              	error_exit:
+  72              	    li      $a0,0
+  73 005c 0C000000 	    jal     exit
+  73      24040000 
+  74              	
+  75              	    # This function will print the palindrome
+  76              	    .global palindrome_print
+  77              	palindrome_print:
+  78              	  
+  79 0064 27BDFFFC 	    addiu $sp, $sp, -4  
+  80 0068 AFBF0000 	    sw    $ra, ($sp)    
+  81              	
+  82 006c 00802821 	    move $a1, $a0
+  83 0070 3C040000 	    la   $a0, messageFormat
+  84 0074 0C000000 	    jal  printf
+  84      24840058 
+  85              	    
+  86 007c 8FBF0000 	    lw    $ra, ($sp)    
+  87 0080 27BD0004 	    addiu $sp, $sp, +4  
+  88              	
+  89 0084 03E00008 	    jr    $ra
+  89      00000000 
+GAS LISTING palindrome.s 			page 3
+
+
+  90              	
+  91              	
+  92              	    .global main    
+  93              	 main:
+  94              	    #jal palindrome_prompt # Prints my custom logo
+  95              	
+  96 008c 3C040000 	    la $a0, fileName # file path $a0
+  96      24840000 
+  97 0094 3C050000 	    la $a1, fileMode # file mode used to read file
+  98 0098 0C000000 	    jal fopen  
+  98      24A50056 
+  99              	   
+ 100 00a0 24080000 	    addiu $t0, $0, 0
+ 101 00a4 1102FFFF 	    beq $t0, $v0, palindrome_error # making sure file openned
+ 101      00000000 
+ 102              	
+ 103 00ac 00408821 	    move $s1, $v0 # saving file pointer from fopen into $s1
+ 104              	
+ 105 00b0 24100000 	    addiu $s0, $0, 0 # $s0 = 0
+ 106 00b4 24130061 	    addiu $s3, $0, 97 # ascii value for 'a'
+ 107 00b8 24140004 	    addiu $s4, $0, 4  # If length is equal or less than skip
+ 108              	
+ 109              	while:
+ 110              	     
+ 111 00bc 0C000057 	    jal palindrome_get_string
+ 111      00000000 
+ 112              	
+ 113              	    move $a0, $v0 # loading string from fgets into $a0
+ 114 00c4 12020030 	    beq $s0, $v0, whileEnd #If $v0 == 0 EOF reached
+ 114      00402021 
+ 115              	
+ 116 00cc 3C090000 	    la $t1, buffer  # Base array pointer
+ 116      25290016 
+ 117 00d4 3C0A0000 	    la $t2, buffer  # End of array pointer starting at beginning
+ 118              	
+ 119 00d8 0C000000 	    jal strlen          # getting String length 
+ 119      254A0016 
+ 120 00e0 00409021 	    move $s2, $v0       # loading current string length to $s2
+ 121 00e4 0254082A 	    blt $s2, $s4, not_palindrome #If length is less than 4 branch
+ 121      14200016 
+ 121      00000000 
+ 122 00f0 2252FFFE 	    addi $s2, $s2, -2   # need to add -2 to move index to just pass \n
+ 123              	    add $t2, $t1, $s2   # moving pointer to end of array
+ 124 00f4 0C000041 	    jal palindrome_check 
+ 124      01325020 
+ 125              	
+ 126 00fc 0800002F 	    j while
+ 126      00000000 
+ 127              	
+ 128              	
+ 129              	palindrome_check:
+ 130 0104 812B0000 	    lb $t3, ($t1) # get character at lower pointer
+ 130      00000000 
+ 131 010c 0173082A 	    blt $t3, $s3, not_palindrome # If first element is a Capital letter skip
+ 131      1420000C 
+ 131      00000000 
+ 132 0118 012A082A 	    bge $t1, $t2, is_palindrome
+GAS LISTING palindrome.s 			page 4
+
+
+ 132      1020000B 
+ 132      00000000 
+ 133              	
+ 134 0124 812B0000 	    lb $t3, ($t1) # get character at lower pointer
+ 135              	    
+ 136 0128 814C0000 	    lb $t4, ($t2) # get character at end pointer
+ 137 012c 00000000 	
+ 138 0130 156C0004 	    bne $t3, $t4, not_palindrome
+ 138      00000000 
+ 139              	
+ 140 0138 21290001 	    addi $t1, $t1, 1 # increment lower pointer
+ 141              	    addi $t2, $t2, -1 # decrement end pointer
+ 142              	
+ 143 013c 08000041 	    j palindrome_check
+ 143      214AFFFF 
+ 144              	
+ 145              	not_palindrome:
+ 146 0144 0800002F 	    j while
+ 146      00000000 
+ 147              	
+ 148              	is_palindrome:
+ 149 014c 0C000000 	    jal palindrome_print
+ 149      00000000 
+ 150 0154 0800002F 	    j while
+ 150      00000000 
+ 151              	
+ 152              	palindrome_get_string:
+ 153              	
+ 154 015c 27BDFFFC 	    addiu $sp, $sp, -4
+ 155 0160 AFBF0000 	    sw    $ra, ($sp)
+ 156              	
+ 157 0164 3C040000 	    la   $a0, buffer # load str to read into
+ 157      24840016 
+ 158 016c 24050040 	    la   $a1, 64 # max number of bytes to be read
+ 159              	    move $a2, $s1 # Load pointer to stream
+ 160 0170 0C000000 	    jal  fgets  
+ 160      02203021 
+ 161              	
+ 162 0178 8FBF0000 	    lw $ra, ($sp)
+ 163 017c 27BD0004 	    addiu $sp, $sp, +4
+ 164              	
+ 165 0180 03E00008 	    jr $ra
+ 165      00000000 
+ 166              	
+ 167              	whileEnd:
+ 168              	    move $a0, $s1 # move file pointer($s1) to $a0
+ 169 0188 0C000000 	    jal fclose  #freeing the file pointer
+ 169      02202021 
+ 170              	    li      $a0, 0
+ 171 0190 0C000000 	    jal     exit
+ 171      24040000 
+ 171      00000000 
+ 171      00000000 
+GAS LISTING palindrome.s 			page 5
+
+
+DEFINED SYMBOLS
+        palindrome.s:10     .data:0000000000000000 fileName
+        palindrome.s:13     .data:0000000000000016 buffer
+        palindrome.s:16     .data:0000000000000056 fileMode
+        palindrome.s:19     .data:0000000000000058 messageFormat
+        palindrome.s:22     .data:000000000000005b promptMessage
+        palindrome.s:26     .data:000000000000007c fileError
+        palindrome.s:35     .text:0000000000000000 palindrome_prompt
+        palindrome.s:53     .text:0000000000000030 palindrome_error
+        palindrome.s:71     .text:000000000000005c error_exit
+        palindrome.s:77     .text:0000000000000064 palindrome_print
+        palindrome.s:93     .text:000000000000008c main
+        palindrome.s:109    .text:00000000000000bc while
+        palindrome.s:152    .text:000000000000015c palindrome_get_string
+        palindrome.s:167    .text:0000000000000188 whileEnd
+        palindrome.s:145    .text:0000000000000144 not_palindrome
+        palindrome.s:129    .text:0000000000000104 palindrome_check
+        palindrome.s:148    .text:000000000000014c is_palindrome
+
+UNDEFINED SYMBOLS
+printf
+exit
+fopen
+strlen
+fgets
+fclose
